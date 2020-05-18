@@ -27,35 +27,30 @@ readMsp <- function(path, parallel = FALSE){
   group_i <- .groupIndex(breaks = blankLines)
 
   #Find header locations
+  print("processing header chunks")
   headerLocs <- grep(pattern = ":", x = lns, perl = TRUE)
 
-  #Extract each header as its own group
-  headers <- split(x = lns[headerLocs], f = group_i[headerLocs])
+  #Split header names from header values
+  headers <- strsplit(x = lns[headerLocs], split = ":", perl = TRUE)
+  headerNames <- sapply(headers, "[[", 1)
+  headerValues <- sapply(headers, "[[", 2)
+
+  #Convert header data to a data.table
+  headers <- data.table::data.table(index = group_i[headerLocs], variable = headerNames, value = headerValues)
+  headers <- data.table::dcast(data = headers, formula = index ~ variable, value.var = "value")
 
   #Remove header information and blank lines from lns and update group index
   print("processing data chunks")
-
   lns <- lns[-c(headerLocs, blankLines)]
   group_i <- group_i[-c(headerLocs, blankLines)]
+
+  #Format data blocks to data.table and add index
   lns <- data.table::fread(text = lns, sep = "\t")
+  setnames(x = lns, new = c("mz", "intensity", "annotation"), old = names(lns))
   lns[, index := group_i]
 
-  #Process Header
-  if(parallel){
-    #TODO: Split up headers, wrap .processHeader into a processHeaders function using lapply
-    i <- splitIndex()
-    headers <- headers[i]
-    print("processing header using multiple cores")
-    header <- BiocParallel::bplapply(X = headers, FUN = function(X){library(mspReader); .processHeader(X)})
-  }else{
-    print("processing header")
-    header <- lapply(X = headers, FUN = .processHeader)
-  }
-
-  remove(headers)
-  header <- data.table::rbindlist(header, idcol = TRUE, fill = TRUE, use.names = TRUE)
-
-  list(ions = lns, info = header)
+  dt <- data.table::merge.data.table(x = lns, y = headers, by = "index")
+  dt
 }
 
 #' Process the Comment field in .msp
