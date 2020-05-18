@@ -8,7 +8,7 @@
 #' @examples
 #'
 
-readMsp <- function(path, parallel = FALSE){
+readMsp <- function(path){
 
   #Read text data and index
   print("reading text into memory")
@@ -28,10 +28,10 @@ readMsp <- function(path, parallel = FALSE){
 
   #Find header locations
   print("processing header chunks")
-  headerLocs <- grep(pattern = ":", x = lns, perl = TRUE)
+  headerLocs <- grep(pattern = ": ", x = lns, perl = TRUE)
 
   #Split header names from header values
-  headers <- strsplit(x = lns[headerLocs], split = ":", perl = TRUE)
+  headers <- strsplit(x = lns[headerLocs], split = ": ", perl = TRUE)
   headerNames <- sapply(headers, "[[", 1)
   headerValues <- sapply(headers, "[[", 2)
 
@@ -39,17 +39,74 @@ readMsp <- function(path, parallel = FALSE){
   headers <- data.table::data.table(index = group_i[headerLocs], variable = headerNames, value = headerValues)
   headers <- data.table::dcast(data = headers, formula = index ~ variable, value.var = "value")
 
+  #Parse header comments
+  print("Processing header comment")
+  headers <- .parseHeaderDt(dt = headers)
+
   #Remove header information and blank lines from lns and update group index
   print("processing data chunks")
+
+  ####### Do it in base R #######
   lns <- lns[-c(headerLocs, blankLines)]
   group_i <- group_i[-c(headerLocs, blankLines)]
 
-  #Format data blocks to data.table and add index
-  lns <- data.table::fread(text = lns, sep = "\t")
-  setnames(x = lns, new = c("mz", "intensity", "annotation"), old = names(lns))
+  #Split and bind
+  lns <- strsplit(x = lns, split = "\t", perl = TRUE)
+  lns <- do.call(rbind, lns)
+
+  #data.table
+  lns <- data.table::as.data.table(lns)
+  data.table::setnames(x = lns, new = c("mz", "intensity", "annotation"), old = names(lns))
   lns[, index := group_i]
 
-  dt <- data.table::merge.data.table(x = lns, y = headers, by = "index")
+  list(data = lns, info = headers)
+}
+
+#' Process header data.table containing comment string
+#'
+#' @param dt
+#'
+#' @return
+#' @export
+#'
+#' @examples
+.parseHeaderDt <- function(dt){
+  #Parse comment
+  comment_dt <- .parseCommentVector(comments = dt$Comment, indexs = dt$index)
+
+  dt[, Comment := NULL]
+  #Merge data.tables and return
+  dt <- data.table::merge.data.table(x = dt, y = comment_dt, by = "index")
+
+  dt
+}
+
+#' Parse vector of comment strings
+#'
+#' @param comments
+#' @param indexs
+#'
+#' @return
+#' @export
+#'
+#' @examples
+.parseCommentVector <- function(comments, indexs){
+  #Parse each comment
+  comments <- mapply(FUN = .commentParser,
+                     comment = comments,
+                     USE.NAMES = FALSE,
+                     SIMPLIFY = FALSE)
+
+  commentNames <- lapply(X = comments, FUN = names)
+
+  #Make an index
+  nCommentsPerGroup <- sapply(X = comments, FUN = length)
+  index <- mapply(FUN = rep, x = indexs, times = nCommentsPerGroup, SIMPLIFY = FALSE)
+
+  #Get into data.table
+  dt <- data.table::data.table(index = unlist(index), variable = unlist(commentNames), values = unlist(comments))
+
+  dt <- data.table::dcast(data = dt, formula = index ~ variable, value.var = "values", fill = TRUE)
   dt
 }
 
@@ -64,6 +121,7 @@ readMsp <- function(path, parallel = FALSE){
 #' @param comment A text vector containing the comment field of an .msp file
 #'
 #' @return a named character vector
+#' @export
 #'
 
 .commentParser <- function(comment){
@@ -96,7 +154,10 @@ readMsp <- function(path, parallel = FALSE){
   #Extract remaining subGroups that don't follow name/value pair
   numUnknownGroups <- numSubGroups - length(nameValuePairs)
   unknowGroups <- subGroups[-nameValuePairs]
-  names(unknowGroups) <- paste0("unknown_", c(1:numUnknownGroups))
+  if(numUnknownGroups > 0){
+    unknowGroups <- subGroups[-nameValuePairs]
+    names(unknowGroups) <- paste0("unknown_", c(1:numUnknownGroups))
+  }
 
   #Combine all named subgroups and return
   c(subGroup_values, unknowGroups)
