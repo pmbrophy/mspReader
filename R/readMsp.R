@@ -8,9 +8,10 @@
 #' @examples
 #'
 
-readMsp <- function(path){
+readMsp <- function(path, parallel = FALSE){
 
   #Read text data and index
+  print("reading text into memory")
   lns <- readLines(con = path)
   nLines <- length(lns)
 
@@ -32,24 +33,27 @@ readMsp <- function(path){
   headers <- split(x = lns[headerLocs], f = group_i[headerLocs])
 
   #Remove header information and blank lines from lns and update group index
+  print("processing data chunks")
+
   lns <- lns[-c(headerLocs, blankLines)]
   group_i <- group_i[-c(headerLocs, blankLines)]
+  lns <- data.table::fread(text = lns, sep = "\t")
+  lns[, index := group_i]
 
   #Process Header
-  header <- BiocParallel::bplapply(X = headers,
-                                   FUN = function(X){library(mspReader); .processHeader(X)})
+  if(parallel){
+    #TODO: Split up headers, wrap .processHeader into a processHeaders function using lapply
+    i <- splitIndex()
+    headers <- headers[i]
+    print("processing header using multiple cores")
+    header <- BiocParallel::bplapply(X = headers, FUN = function(X){library(mspReader); .processHeader(X)})
+  }else{
+    print("processing header")
+    header <- lapply(X = headers, FUN = .processHeader)
+  }
+
   remove(headers)
   header <- data.table::rbindlist(header, idcol = TRUE, fill = TRUE, use.names = TRUE)
-
-  #Process Data
-  #TODO: Parallize this chunk
-  lns <- strsplit(x = lns, split = "\t", perl = TRUE) #memory hog
-  lns <- do.call(what = rbind, args = lns)
-  #maybe faster to : as.numeric(sapply(lns, "[[", 1))?
-  lns <- data.table::data.table(index = group_i,
-                                mz = as.numeric(lns[,1]),
-                                intensity = as.numeric(lns[,2]),
-                                annotation = lns[,3])
 
   list(ions = lns, info = header)
 }
@@ -149,4 +153,65 @@ readMsp <- function(path){
   header <- data.table::data.table(t(c(header, comment)))
 
   header
+}
+
+#' Split a vector into groups
+#'
+#' @param index the vector of index values to be split into groups
+#' @param nGroups number of groups to be generated
+#' @param randomize should the groups contain a random or ordered sampling from
+#'   the index vector
+#'
+#' @return returns a list containing `groups` and `groupIndex` both of which are
+#'   lists of length nGroups
+#' @export
+#'
+#' @examples
+#' index <- c(c(1:10), c(30:40))
+#' groupedIndex <- splitIndex(nGroups = 3, index = index, randomize = TRUE)
+#'
+#' groups <- unlist(groupedIndex$groups)
+#' groups_i <- unlist(groupedIndex$groupIndex)
+#'
+#' all(index %in% groups)
+#'
+#' #Reorder the radomized groups by groups_i
+#' groups_reorder <- vector(mode = "numeric", length = length(groups))
+#' groups_reorder[groups_i] <- groups
+#' groups_reorder
+#'
+.splitIndex <- function(index, nGroups, randomize = FALSE){
+  indexLength <- length(index)
+
+  #randomized index_i for the vector index
+  index_i <- c(1:indexLength)
+  if(randomize){
+    index_i <- sample(index_i)
+  }
+
+  #Calcualte the groups
+  groupSize <- indexLength %/% nGroups
+  groupStarts <- seq(from = 1, to = groupSize * nGroups, by = groupSize)
+  groupStops <- groupStarts + (groupSize-1)
+  groupStops[nGroups] <- groupStops[nGroups] + (length(index) %% nGroups)
+
+  groups <- mapply(FUN = seq, from = groupStarts, to = groupStops, by = 1, SIMPLIFY = FALSE)
+
+  #randomized group indexs
+  groups_i <- mapply(FUN = .indexFromVector, indexLocs = groups, MoreArgs = list(index_i), SIMPLIFY = FALSE)
+
+  if(randomize){
+    #Using randomized group indexs, get the actual index values
+    groups <- mapply(FUN = .indexFromVector, indexLocs = groups_i, MoreArgs = list(index), SIMPLIFY = FALSE)
+  }else{
+    #Ordered implementation
+    groups <- mapply(FUN = .indexFromVector, indexLocs = groups, MoreArgs = list(index), SIMPLIFY = FALSE)
+  }
+
+  list(groups = groups, groupIndex = groups_i)
+}
+
+#extract index locations from a vector
+.indexFromVector <- function(indexLocs, vec){
+  vec[indexLocs]
 }
