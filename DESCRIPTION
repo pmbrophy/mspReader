@@ -9,5 +9,5 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 biocViews:
-Imports: data.table, BiocParallel 
+Depends: data.table
 RoxygenNote: 7.1.0
