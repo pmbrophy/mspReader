@@ -1,12 +1,19 @@
 #' Process spectral data
 #'
 #' @param data character vector containing only data chunks
+#' @param groupIndex a numeric vector the same length as data providing index
+#'   values for each line in data.
 #'
 #' @return a data.table containing `mz`, `intensity`, and `annotation`
+#'
 #'
 
 .processDataChunks <- function(data, groupIndex){
   print("processing data chunks")
+
+  #Needed for passing CMD Check
+  ':=' <- NULL
+  index <- NULL
 
   #Split and bind
   data <- strsplit(x = data, split = "[[:blank:]]", perl = TRUE)

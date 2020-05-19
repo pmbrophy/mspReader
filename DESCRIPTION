@@ -4,10 +4,9 @@ Title: import .msp files for mass spectrometry data
 Version: 0.1.0
 Author: Patrick Brophy
 Maintainer: Patrick Brophy <patrickbrophy2011@gmail.com>
-Description: Import .msp files for mass spectrometry data. Format used by NIST, Mass Bank, etc for distributing spectral libraries
+Description: Import .msp files for mass spectrometry data. Format used by NIST, Mass Bank, etc for distributing spectral libraries.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-biocViews:
-Depends: data.table, BiocParallel
+Depends: data.table
 RoxygenNote: 7.1.0

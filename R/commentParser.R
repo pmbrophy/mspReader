@@ -68,7 +68,7 @@
   subGroups <- substring(text = comment, first = subLocs_start, last = subLocs_stop)
 
   #Process name value pairs
-  parsedComment <- splitByEquals(nameValuePairs = subGroups)
+  parsedComment <- .splitByEquals(nameValuePairs = subGroups)
 
   parsedComment
 }

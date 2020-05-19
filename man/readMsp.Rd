@@ -4,17 +4,18 @@
 \alias{readMsp}
 \title{Import a .msp file into R}
 \usage{
-readMsp(path)
+readMsp(path, commentType)
 }
 \arguments{
 \item{path}{system path to a .msp file containing mass spectral data}
+
+\item{commentType}{either `NIST` or `MoNA` - used for comment parsing}
 }
 \value{
-
+a list containing two data.tables
 }
 \description{
-Import a .msp file into R
-}
-\examples{
-
+Read an .msp file into R from a system path. The data and header
+for each block are converted and assigned index numbers. Two data.tables are
+returned to save memeory. These can be combined by merging on the `index`
 }

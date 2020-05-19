@@ -5,13 +5,13 @@
 #' returned to save memeory. These can be combined by merging on the `index`
 #'
 #' @param path system path to a .msp file containing mass spectral data
+#' @param commentType either `NIST` or `MoNA` - used for comment parsing
 #'
 #' @return a list containing two data.tables
 #' @export
 #'
 
 readMsp <- function(path, commentType){
-
   #Read text data and index
   print("reading text into memory")
   lns <- readLines(con = path)

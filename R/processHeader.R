@@ -40,7 +40,7 @@
 #' parsed and a data.table with additional columns is returned. The original
 #' `Comment` column is removed.
 #'
-#' @param dt a data.table returned from .processHeader()
+#' @param headerDt a data.table returned from .processHeader()
 #' @param commentType either `NIST` or `MoNA` - used for comment parsing
 #'
 #' @return a data.table with additional parsed fields from the comment comment
@@ -48,10 +48,22 @@
 #'
 
 .parseHeaderDt <- function(headerDt, commentType = commentType){
-  #Parse comment
-  commentDt <- .parseCommentVector(comments = headerDt$Comment, indexs = headerDt$index, commentType = commentType)
+  #Globals to get past check
+  ':=' <- NULL
+  Comment <- NULL
+  Comments <- NULL
 
-  headerDt[, Comment := NULL]
+  #NIST uses "Comment:" MoNA uses "Comments:"
+  if(commentType == "NIST"){
+    #Parse comment
+    commentDt <- .parseCommentVector(comments = headerDt$Comment, indexs = headerDt$index, commentType = commentType)
+    headerDt[, Comment := NULL]
+  }else if(commentType == "MoNA"){
+    commentDt <- .parseCommentVector(comments = headerDt$Comments, indexs = headerDt$index, commentType = commentType)
+    headerDt[, Comments := NULL]
+  }else{
+    stop("Comment type must be either NIST or MoNA")
+  }
 
   #Merge data.tables and return
   headerDt <- data.table::merge.data.table(x = headerDt, y = commentDt, by = "index")
