@@ -8,5 +8,9 @@ Description: Import .msp files for mass spectrometry data. Format used by NIST, 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: data.table
+LinkingTo: Rcpp
+Depends: 
+  data.table
+Imports:
+    Rcpp
 RoxygenNote: 7.1.0

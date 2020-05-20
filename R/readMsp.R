@@ -12,9 +12,16 @@
 #'
 
 readMsp <- function(path, commentType){
+  if(is.null(commentType)){
+    stop("Comment type must be specified")
+  }
+
   #Read text data and index
-  print("reading text into memory")
-  lns <- readLines(con = path)
+  print("reading text into memory using fast read")
+
+  #lns <- readLines(con = path)
+  lns <- f_readlines(file = path)
+
   nLines <- length(lns)
 
   #Locate blank lines and build index
