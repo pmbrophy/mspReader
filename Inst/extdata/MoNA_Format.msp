@@ -1,0 +1,28 @@
+Name: Cmp1
+DB#: 12345
+Precursor_type: [M+H]+
+Spectrum_type: MS2
+PrecursorMZ: 530.0
+Instrument: qTof
+Ion_mode: P
+ExactMass: 530.002
+Comments: "ion source=LC-ESI" "compound source=Isolated" "exact mass=0.0" 
+Num Peaks: 3
+150.545343 0.2154
+151.546744 8.1254896
+152.546031 100
+
+
+Name: Cmp2
+Precursor_type: [M+H]+
+Spectrum_type: MS2
+Instrument: qTof
+Ion_mode: P
+ExactMass: 500.5555555
+Comments: "ion source=LC-ESI" "compound source=Isolated" "exact mass=0.0" 
+Num Peaks: 4
+140.545343 0.2154
+141.546744 8.1254896
+142.546031 100
+143.546031 50
+

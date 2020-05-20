@@ -1,0 +1,17 @@
+Name: FakeCompound1
+MW: 3000.345
+Comment: Spec=Consensus Pep=Tryptic Mods=0 Protein="the prot name"
+Num peaks: 3
+200.1	100	"y1/0.01"
+300.2	123	"y4/0.02"
+300.3	569	"b1-H2O/0.03"
+
+Name: FakeCompound2
+MW: 2000.345
+Comment: Spec=Consensus Pep=Tryptic Mods=0 Protein="the prot name"
+Num peaks: 4
+200.1	100	"y1/0.01"
+300.2	123	"y4/0.02"
+300.3	569	"b1-H2O/0.03"
+300.6	570	"a"
+
