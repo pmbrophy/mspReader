@@ -10,7 +10,7 @@ f_readlines(file)
 \item{file}{Path to a file.}
 }
 \value{
-
+character vector
 }
 \description{
 Read a file into memory. We memory map the file for fast I/O.

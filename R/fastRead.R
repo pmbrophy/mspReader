@@ -8,7 +8,7 @@
 ##'
 ##' @param file Path to a file.
 ##'
-##' @return
+##' @return character vector of length 1
 ##' @export
 ##'
 
@@ -28,7 +28,7 @@ f_read <- function(file) {
 ##'
 ##' @param file Path to a file.
 ##'
-##' @return
+##' @return character vector
 ##' @export
 ##'
 ##' @example
