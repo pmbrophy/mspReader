@@ -19,10 +19,26 @@
   data <- strsplit(x = data, split = "[[:blank:]]", perl = TRUE)
   data <- do.call(rbind, data)
 
-  #data.table
-  data <- data.table::as.data.table(data)
-  newNames <- c("mz", "intensity", "annotation")[c(1:ncol(data))]
-  data.table::setnames(x = data, new = newNames, old = names(data))
+  nCols <- ncol(data)
+  #Ensure numeric data
+  if(!is.numeric(data)){
+    if(nCols == 2){
+      data <- data.table::data.table(mz = as.numeric(data[,1]),
+                                     intensity = as.numeric(data[,2]))
+    }else if(nCols == 3){
+      data <- data.table::data.table(mz = as.numeric(data[,1]),
+                                     intensity = as.numeric(data[,2]),
+                                     annotation = data[,3])
+    }else{
+      stop(paste("number of columns in data chunks:", nCols))
+    }
+  }else{
+    #Data is already numeric
+    data <- data.table::data.table(data)
+    newNames <- c("mz", "intensity", "annotation")[c(1:nCols)]
+    data.table::setnames(x = data, new = newNames, old = names(data))
+  }
+
   data[, index := groupIndex]
 
   data
