@@ -49,18 +49,18 @@
 
 .parseHeaderDt <- function(headerDt, commentType = commentType){
   #Globals to get past check
-  ':=' <- NULL
-  Comment <- NULL
-  Comments <- NULL
+  #':=' <- NULL
+  #Comment <- NULL
+  #Comments <- NULL
 
   #NIST uses "Comment:" MoNA uses "Comments:"
   if(commentType == "NIST"){
     #Parse comment
     commentDt <- .parseCommentVector(comments = headerDt$Comment, indexs = headerDt$index, commentType = commentType)
-    headerDt[, Comment := NULL]
+    #headerDt[, Comment := NULL]
   }else if(commentType == "MoNA"){
     commentDt <- .parseCommentVector(comments = headerDt$Comments, indexs = headerDt$index, commentType = commentType)
-    headerDt[, Comments := NULL]
+    #headerDt[, Comments := NULL]
   }else{
     stop("Comment type must be either NIST or MoNA")
   }
