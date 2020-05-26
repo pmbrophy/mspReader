@@ -12,8 +12,7 @@
   print("processing data chunks")
 
   #Needed for passing CMD Check
-  #':=' <- NULL
-  #index <- NULL
+  index <- NULL
 
   #Split and bind
   data <- strsplit(x = data, split = "[[:blank:]]", perl = TRUE)
@@ -39,6 +38,5 @@
     data.table::setnames(x = data, new = newNames, old = names(data))
   }
 
-  #data[, index := groupIndex]
-  data.table::data.table(data, groupIndex)
+  data[, index := groupIndex]
 }
