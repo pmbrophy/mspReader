@@ -65,7 +65,7 @@
   }
 
   #Merge data.tables and return
-  #headerDt <- data.table::merge.data.table(x = headerDt, y = commentDt, by = "index")
+  headerDt <- data.table::merge.data.table(x = headerDt, y = commentDt, by = "index")
 
   headerDt
 }
