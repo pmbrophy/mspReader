@@ -20,7 +20,8 @@ readMsp <- function(path, commentType){
   print("reading text into memory using fast read")
 
   #lns <- readLines(con = path)
-  lns <- f_readlines(file = path)
+  #lns <- f_readlines(file = path)
+  lns <- readr::read_lines(file = path)
 
   nLines <- length(lns)
 
