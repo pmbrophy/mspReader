@@ -9,6 +9,8 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 LinkingTo: Rcpp
-Imports: Rcpp
-Depends: data.table
+Imports: 
+  Rcpp, 
+  data.table,
+  readr
 RoxygenNote: 7.1.0
