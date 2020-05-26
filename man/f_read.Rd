@@ -14,5 +14,6 @@ character vector of length 1
 }
 \description{
 Read a file into memory. We memory map the file for fast I/O.
-The file is read in as a character vector of length = 1.
+The file is read in as a character vector of length = 1. This doesn't appear
+to scale. Large files do not read into memory faster
 }

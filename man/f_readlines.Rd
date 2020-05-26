@@ -13,6 +13,7 @@ f_readlines(file)
 character vector
 }
 \description{
-Read a file into memory. We memory map the file for fast I/O.
-The file is read in as a character vector.
+Read a file into memory. We memory map the file for fast I/O. The file is
+read in as a character vector. This doesn't appear to scale. Large files do
+not read into memory faster
 }
