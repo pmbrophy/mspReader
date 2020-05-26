@@ -4,7 +4,8 @@
 ##' Read a File
 ##'
 ##' Read a file into memory. We memory map the file for fast I/O.
-##' The file is read in as a character vector of length = 1.
+##' The file is read in as a character vector of length = 1. This doesn't appear
+##' to scale. Large files do not read into memory faster
 ##'
 ##' @param file Path to a file.
 ##'
@@ -23,18 +24,17 @@ f_read <- function(file) {
 
 ##' Read lines from a file
 ##'
-##' Read a file into memory. We memory map the file for fast I/O.
-##' The file is read in as a character vector.
+##' Read a file into memory. We memory map the file for fast I/O. The file is
+##' read in as a character vector. This doesn't appear to scale. Large files do
+##' not read into memory faster
 ##'
 ##' @param file Path to a file.
 ##'
 ##' @return character vector
 ##' @export
 ##'
-##' @example
-##' p <- file.path( R.home(), "NEWS" )
-##' if (file.exists(p))
-##'   stopifnot( identical( readLines(p), readlines(p) ) )
+##' @example p <- file.path( R.home(), "NEWS" ) if (file.exists(p)) stopifnot(
+##' identical( readLines(p), readlines(p) ) )
 ##'
 
 f_readlines <- function(file) {
