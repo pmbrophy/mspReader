@@ -12,5 +12,6 @@ LinkingTo: Rcpp
 Imports: 
   Rcpp, 
   data.table,
-  readr
+  readr,
+  testthat
 RoxygenNote: 7.1.0
